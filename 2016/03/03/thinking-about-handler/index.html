@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>我对 Handler-Looper-MessageQueue 机制的思考 | 王少星的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。
+下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。
+1. 为目标线程建立一个消息循环用来“监听”消息我们都知道 Java 中一个线程执行的入口点是它的 run() 方法（或者对应 R">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我对 Handler-Looper-MessageQueue 机制的思考">
+<meta property="og:url" content="https://wsxyeah.github.io/2016/03/03/thinking-about-handler/index.html">
+<meta property="og:site_name" content="王少星的个人博客">
+<meta property="og:description" content="Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。
+下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。
+1. 为目标线程建立一个消息循环用来“监听”消息我们都知道 Java 中一个线程执行的入口点是它的 run() 方法（或者对应 R">
+<meta property="og:updated_time" content="2016-03-30T01:28:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我对 Handler-Looper-MessageQueue 机制的思考">
+<meta name="twitter:description" content="Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。
+下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。
+1. 为目标线程建立一个消息循环用来“监听”消息我们都知道 Java 中一个线程执行的入口点是它的 run() 方法（或者对应 R">
+  
+    <link rel="alternate" href="/atom.xml" title="王少星的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.lug.ustc.edu.cn/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">王少星的个人博客</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+          <a class="main-nav-link" href="/friends">Friends</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://wsxyeah.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-thinking-about-handler" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/03/03/thinking-about-handler/" class="article-date">
+  <time datetime="2016-03-03T13:00:42.000Z" itemprop="datePublished">2016-03-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      我对 Handler-Looper-MessageQueue 机制的思考
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。</p>
+<p>下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。</p>
+<h2 id="1-为目标线程建立一个消息循环用来“监听”消息"><a href="#1-为目标线程建立一个消息循环用来“监听”消息" class="headerlink" title="1. 为目标线程建立一个消息循环用来“监听”消息"></a>1. 为目标线程建立一个消息循环用来“监听”消息</h2><p>我们都知道 Java 中一个线程执行的入口点是它的 <code>run()</code> 方法（或者对应 Runable 对象的 <code>run()</code> 方法），我们要为目标线程建立消息循环就需要在此处进行操作，否则线程代码一下子就执行完了，结束掉了。</p>
+<p>这时我们就需要 Looper 来完成这个工作了，从其命名我们就可以看出来它是作为一个“循环器”来使用，它可以方便地为我们的线程建立消息循环。我们在使用 Looper 的时候都是先调用 <code>Looper.prepare()</code> ,然后创建 Handler 作为消息处理器，最后再调用 <code>Looper.loop()</code> 来启动消息循环。</p>
+<p>那么 <code>Looper.prepare()</code> 干了些什么事情呢，我们来看一下其源码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/** Initialize the current thread as a looper.</span><br><span class="line">  * This gives you a chance to create handlers that then reference</span><br><span class="line">  * this looper, before actually starting the loop. Be sure to call</span><br><span class="line">  * &#123;<span class="doctag">@link</span> #loop()&#125; after calling this method, and end it by calling</span><br><span class="line">  * &#123;<span class="doctag">@link</span> #quit()&#125;.</span><br><span class="line">  */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">prepare</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    prepare(<span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">prepare</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (sThreadLocal.get() != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Only one Looper may be created per thread"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    sThreadLocal.set(<span class="keyword">new</span> Looper(quitAllowed));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="title">Looper</span><span class="params">(<span class="keyword">boolean</span> quitAllowed)</span> </span>&#123;</span><br><span class="line">    mQueue = <span class="keyword">new</span> MessageQueue(quitAllowed);</span><br><span class="line">    mThread = Thread.currentThread();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中的 <code>sThreadLocal</code> 是 Looper 类的静态 ThreadLocal 类对象。这里先说明一下 ThreadLocal 的作用，ThreadLocal 就是用来从当前线程对象里存取数据的一个工具类。<br>ThreadLocal 使用 <code>Thread.currentThread()</code> 来获得当前代码所在的线程对象，然后把数据存到线程对象中，get 也是从线程对象里取出来。</p>
+<p>我们从源码可以看出来 <strong><code>Looper.prepare()</code> 会向当前线程对象存放一个 Looper 对象</strong>，另外 Looper 对象在创建的时候创建一个 MessageQueue，将其以及当前线程对象作为对象成员。</p>
+<p>再来看 Handler 的创建。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span><br><span class="line"> * Use the &#123;<span class="doctag">@link</span> Looper&#125; for the current thread with the specified callback interface</span><br><span class="line"> * and set whether the handler should be asynchronous.</span><br><span class="line"> *</span><br><span class="line"> * Handlers are synchronous by default unless this constructor is used to make</span><br><span class="line"> * one that is strictly asynchronous.</span><br><span class="line"> *</span><br><span class="line"> * Asynchronous messages represent interrupts or events that do not require global ordering</span><br><span class="line"> * with respect to synchronous messages.  Asynchronous messages are not subject to</span><br><span class="line"> * the synchronization barriers introduced by &#123;<span class="doctag">@link</span> MessageQueue#enqueueSyncBarrier(long)&#125;.</span><br><span class="line"> *</span><br><span class="line"> * <span class="doctag">@param</span> callback The callback interface in which to handle messages, or null.</span><br><span class="line"> * <span class="doctag">@param</span> async If true, the handler calls &#123;<span class="doctag">@link</span> Message#setAsynchronous(boolean)&#125; for</span><br><span class="line"> * each &#123;<span class="doctag">@link</span> Message&#125; that is sent to it or &#123;<span class="doctag">@link</span> Runnable&#125; that is posted to it.</span><br><span class="line"> *</span><br><span class="line"> * <span class="doctag">@hide</span></span><br><span class="line"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Handler</span><span class="params">(Callback callback, <span class="keyword">boolean</span> async)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (FIND_POTENTIAL_LEAKS) &#123;</span><br><span class="line">        <span class="keyword">final</span> Class&lt;? extends Handler&gt; klass = getClass();</span><br><span class="line">        <span class="keyword">if</span> ((klass.isAnonymousClass() || klass.isMemberClass() || klass.isLocalClass()) &amp;&amp;</span><br><span class="line">                (klass.getModifiers() &amp; Modifier.STATIC) == <span class="number">0</span>) &#123;</span><br><span class="line">            Log.w(TAG, <span class="string">"The following Handler class should be static or leaks might occur: "</span> +</span><br><span class="line">                klass.getCanonicalName());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    mLooper = Looper.myLooper();</span><br><span class="line">    <span class="keyword">if</span> (mLooper == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(</span><br><span class="line">            <span class="string">"Can't create handler inside thread that has not called Looper.prepare()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    mQueue = mLooper.mQueue;</span><br><span class="line">    mCallback = callback;</span><br><span class="line">    mAsynchronous = async;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * Use the provided &#123;<span class="doctag">@link</span> Looper&#125; instead of the default one and take a callback</span><br><span class="line"> * interface in which to handle messages.  Also set whether the handler</span><br><span class="line"> * should be asynchronous.</span><br><span class="line"> *</span><br><span class="line"> * Handlers are synchronous by default unless this constructor is used to make</span><br><span class="line"> * one that is strictly asynchronous.</span><br><span class="line"> *</span><br><span class="line"> * Asynchronous messages represent interrupts or events that do not require global ordering</span><br><span class="line"> * with respect to synchronous messages.  Asynchronous messages are not subject to</span><br><span class="line"> * the synchronization barriers introduced by &#123;<span class="doctag">@link</span> MessageQueue#enqueueSyncBarrier(long)&#125;.</span><br><span class="line"> *</span><br><span class="line"> * <span class="doctag">@param</span> looper The looper, must not be null.</span><br><span class="line"> * <span class="doctag">@param</span> callback The callback interface in which to handle messages, or null.</span><br><span class="line"> * <span class="doctag">@param</span> async If true, the handler calls &#123;<span class="doctag">@link</span> Message#setAsynchronous(boolean)&#125; for</span><br><span class="line"> * each &#123;<span class="doctag">@link</span> Message&#125; that is sent to it or &#123;<span class="doctag">@link</span> Runnable&#125; that is posted to it.</span><br><span class="line"> *</span><br><span class="line"> * <span class="doctag">@hide</span></span><br><span class="line"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Handler</span><span class="params">(Looper looper, Callback callback, <span class="keyword">boolean</span> async)</span> </span>&#123;</span><br><span class="line">    mLooper = looper;</span><br><span class="line">    mQueue = looper.mQueue;</span><br><span class="line">    mCallback = callback;</span><br><span class="line">    mAsynchronous = async;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Handler 的构造函数可以传入一个 Looper 对象，否则将会调用 <code>Looper.myLooper()</code> 从当前线程对象里取出前面 <code>Looper.prepare()</code> 存的 Looper 对象，之后 Handler 将 Looper 和 MessageQueue 作为对象成员。</p>
+<p>最后我们就可以调用 <code>Looper.loop()</code> 来启动消息循环了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span><br><span class="line"> * Run the message queue in this thread. Be sure to call</span><br><span class="line"> * &#123;<span class="doctag">@link</span> #quit()&#125; to end the loop.</span><br><span class="line"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> Looper me = myLooper();</span><br><span class="line">    <span class="keyword">if</span> (me == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"No Looper; Looper.prepare() wasn't called on this thread."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">final</span> MessageQueue queue = me.mQueue;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Make sure the identity of this thread is that of the local process,</span></span><br><span class="line">    <span class="comment">// and keep track of what that identity token actually is.</span></span><br><span class="line">    Binder.clearCallingIdentity();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">long</span> ident = Binder.clearCallingIdentity();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">        Message msg = queue.next(); <span class="comment">// might block</span></span><br><span class="line">        <span class="keyword">if</span> (msg == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// No message indicates that the message queue is quitting.</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// This must be in a local variable, in case a UI event sets the logger</span></span><br><span class="line">        Printer logging = me.mLogging;</span><br><span class="line">        <span class="keyword">if</span> (logging != <span class="keyword">null</span>) &#123;</span><br><span class="line">            logging.println(<span class="string">"&gt;&gt;&gt;&gt;&gt; Dispatching to "</span> + msg.target + <span class="string">" "</span> +</span><br><span class="line">                    msg.callback + <span class="string">": "</span> + msg.what);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        msg.target.dispatchMessage(msg);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (logging != <span class="keyword">null</span>) &#123;</span><br><span class="line">            logging.println(<span class="string">"&lt;&lt;&lt;&lt;&lt; Finished to "</span> + msg.target + <span class="string">" "</span> + msg.callback);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Make sure that during the course of dispatching the</span></span><br><span class="line">        <span class="comment">// identity of the thread wasn't corrupted.</span></span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">long</span> newIdent = Binder.clearCallingIdentity();</span><br><span class="line">        <span class="keyword">if</span> (ident != newIdent) &#123;</span><br><span class="line">            Log.wtf(TAG, <span class="string">"Thread identity changed from 0x"</span></span><br><span class="line">                    + Long.toHexString(ident) + <span class="string">" to 0x"</span></span><br><span class="line">                    + Long.toHexString(newIdent) + <span class="string">" while dispatching to "</span></span><br><span class="line">                    + msg.target.getClass().getName() + <span class="string">" "</span></span><br><span class="line">                    + msg.callback + <span class="string">" what="</span> + msg.what);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        msg.recycleUnchecked();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Looper.loop()</code> 会从当前线程对象中把前面存的 Looper 对象以及该对象的 mMessageQueue 取出来（这里取消息是通过调用 MessageQueue 的 <code>next()</code> 方法来取得下一条消息），然后启动消息循环，不停地从 mMessageQueue 里取消息并分派处理，也就是会调用消息对应的 target Handler 的 <code>dispathMessage()</code> 方法，当然这个消息处理过程就与 <code>Looper.loop()</code> 在同一个线程里了。</p>
+<h2 id="2-向目标线程发消息"><a href="#2-向目标线程发消息" class="headerlink" title="2. 向目标线程发消息"></a>2. 向目标线程发消息</h2><p>在 Android 中我们使用 Handler 来完成的。我们从前面就知道 Handler 在创建的时候就会持有一个 MessageQueue 的引用，其实这个就是用来往 MessageQueue 里放消息用的。</p>
+<p>当我们使用 Handler 发消息时，最后都会调用到 Handler 的 <code>enqueueMessage()</code> 方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">enqueueMessage</span><span class="params">(MessageQueue queue, Message msg, <span class="keyword">long</span> uptimeMillis)</span> </span>&#123;</span><br><span class="line">    msg.target = <span class="keyword">this</span>;</span><br><span class="line">    <span class="keyword">if</span> (mAsynchronous) &#123;</span><br><span class="line">        msg.setAsynchronous(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> queue.enqueueMessage(msg, uptimeMillis);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里 Handler 将 Message 的 target 设置为自己，也就是指定了这条消息将会由自己来处理，然后将 Message 放进 MessageQueue 里面。</p>
+<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>那么根据以上分析，我们可以得出结论：</p>
+<ul>
+<li><p>一个 Looper 对象一定对应于一个线程，一个线程最多有一个 Looper 对象</p>
+</li>
+<li><p>一个 Message 最终由它的 target Handler 来处理</p>
+</li>
+<li><p>一个 Message 会在<strong>持有它所被加入的 MessageQueue 的 Looper 对象</strong>对应的线程中被处理</p>
+</li>
+</ul>
+<p>以上就是我对 Android 中进程间通信机制的理解。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://wsxyeah.github.io/2016/03/03/thinking-about-handler/" data-id="cimiqbggv0009rj1f591q02oq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/03/13/date-format/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android 日期解析与格式化
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/12/19/activity-launch-mode/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">重新认识 Activity launch mode</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android/">Android</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NDK/">NDK</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/NDK/" style="font-size: 10px;">NDK</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">March 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/03/13/date-format/">Android 日期解析与格式化</a>
+          </li>
+        
+          <li>
+            <a href="/2016/03/03/thinking-about-handler/">我对 Handler-Looper-MessageQueue 机制的思考</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/19/activity-launch-mode/">重新认识 Activity launch mode</a>
+          </li>
+        
+          <li>
+            <a href="/2015/12/06/android-ndk-start/">Android NDK 开发环境搭建</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/22/android-async/">Android 异步加载数据方式整理</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 王少星<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+    <a href="/friends" class="mobile-nav-link">Friends</a>
+  
+</nav>
+    
+
+<script src="//ajax.lug.ustc.edu.cn/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
