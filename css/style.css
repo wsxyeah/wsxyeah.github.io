@@ -1119,6 +1119,8 @@ a.article-title:hover {
 .article-entry pre,
 .article-entry code {
   font-family: "Source Code Pro", Consolas, Monaco, Menlo, Consolas, monospace;
+  -moz-tab-size: 4;
+  tab-size: 4;
 }
 .article-entry code {
   background: #eee;
