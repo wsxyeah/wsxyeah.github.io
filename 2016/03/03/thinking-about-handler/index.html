@@ -28,6 +28,7 @@
 <li><p>一个 Message 会在<strong>持有它所被加入的 MessageQueue 的 Looper 对象</strong>对应的线程中被处理</p>
 </li>
 </ul>
-<p>所以如果我们在子线程中完成了耗时操作想要切换到主线程更新 UI 的时候，思路应该是：<br>主线程 Looper 的 MessageQueue -&gt; 主线程 Looper -&gt; 构造持有主线程 Looper 的 Handler（new Handler(Looper.getMainLooper())） -&gt; 使用该 Handler 发送消息</p>
+<p>所以如果我们在子线程中完成了耗时操作想要切换到主线程更新 UI 的时候，思路应该是：</p>
+<p><code>主线程 Looper 的 MessageQueue -&gt; 主线程 Looper -&gt; 构造持有主线程 Looper 的 Handler（new Handler(Looper.getMainLooper())） -&gt; 使用该 Handler 发送消息</code></p>
 <p>以上就是我对 Android 中进程间通信机制的理解。</p>
 </div></article></div></section><footer><div class="paginator"><a href="/2016/03/13/date-format/" class="prev">PREV</a><a href="/2015/12/19/activity-launch-mode/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2016 <a href="https://wsxyeah.github.io">王少星</a>, unless otherwise noted.</p></div></footer><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
