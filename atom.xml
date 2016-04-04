@@ -116,13 +116,13 @@
   </entry>
   
   <entry>
-    <title>我对 Handler-Looper-MessageQueue 机制的思考</title>
+    <title>我对 Android 线程间通信机制的思考</title>
     <link href="https://wsxyeah.github.io/2016/03/03/thinking-about-handler/"/>
     <id>https://wsxyeah.github.io/2016/03/03/thinking-about-handler/</id>
     <published>2016-03-03T13:00:42.000Z</published>
-    <updated>2016-04-04T00:24:41.000Z</updated>
+    <updated>2016-04-04T00:26:55.000Z</updated>
     
-    <content type="html">&lt;p&gt;Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。&lt;/p&gt;
+    <content type="html">&lt;p&gt;Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信，所以也被称为消息机制。&lt;/p&gt;
 &lt;p&gt;下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;1-为目标线程建立一个消息循环用来“监听”消息&quot;&gt;&lt;a href=&quot;#1-为目标线程建立一个消息循环用来“监听”消息&quot; class=&quot;headerlink&quot; title=&quot;1. 为目标线程建立一个消息循环用来“监听”消息&quot;&gt;&lt;/a&gt;1. 为目标线程建立一个消息循环用来“监听”消息&lt;/h2&gt;&lt;p&gt;我们都知道 Java 中一个线程执行的入口点是它的 &lt;code&gt;run()&lt;/code&gt; 方法（或者对应 Runable 对象的 &lt;code&gt;run()&lt;/code&gt; 方法），我们要为目标线程建立消息循环就需要在此处进行操作，否则线程代码一下子就执行完了，结束掉了。&lt;/p&gt;
@@ -159,7 +159,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。&lt;/p&gt;
+      &lt;p&gt;Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信，所以也被称为消息机制。&lt;/p&gt;
 &lt;p&gt;下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。&lt;/p&gt;
     
     </summary>
@@ -170,11 +170,11 @@
   </entry>
   
   <entry>
-    <title>重新认识 Activity launch mode</title>
+    <title>重新认识 Activity LaunchMode</title>
     <link href="https://wsxyeah.github.io/2015/12/19/activity-launch-mode/"/>
     <id>https://wsxyeah.github.io/2015/12/19/activity-launch-mode/</id>
     <published>2015-12-19T08:43:40.000Z</published>
-    <updated>2016-04-04T00:24:31.000Z</updated>
+    <updated>2016-04-04T00:53:10.000Z</updated>
     
     <content type="html">&lt;p&gt;做 Android 的同学想必对 activity 启动模式都不陌生，activity 有四种启动模式（ &lt;code&gt;standard&lt;/code&gt;，&lt;code&gt;singleTop&lt;/code&gt;，&lt;code&gt;singleTask&lt;/code&gt;，&lt;code&gt;singleInstance&lt;/code&gt;），网上和一些书上也有各种讲解，但这些文章大多是针对四种启动模式进行介绍，总是在看过一段时间后就忘掉了。本文希望带你重新理解 activity 启动模式，并理解一些其他的相关概念，而不是仅仅针对四种启动模式。&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
@@ -185,11 +185,11 @@
 &lt;p&gt;上面这句话是官方文档里的，解释了 Android 中 task 的概念，task 就是若干 activity 组成的一个集合，以栈的形式来管理。在 Android 中，每个 activity 都是运行在 task 中的，前台 task 的栈顶 activity 位于前台，可以直接与用户交互。&lt;/p&gt;
 &lt;p&gt;那么一个 activity 运行在哪个 task 中是由谁来决定的呢？我们首先来看 taskAffinity，taskAffinity 是影响 Activity 运行在哪个 task 中的第一个因素。&lt;/p&gt;
 &lt;p&gt;一个 activity 的 taskAffinity 是我们在 &lt;code&gt;manifests.xml&lt;/code&gt; 里定义的，每个 Activity 都可以设置一个 &lt;code&gt;android:taskAffinity&lt;/code&gt; 属性，它的值是一个字符串。&lt;code&gt;application&lt;/code&gt; 元素也有这个属性，它的默认值是 &lt;code&gt;manifest&lt;/code&gt; 元素中指定的包名（&lt;code&gt;package&lt;/code&gt; 属性）。对于 Activity 的这个属性，当我们不显式设置的时候它就会从 &lt;code&gt;application&lt;/code&gt; 元素继承。&lt;/p&gt;
-&lt;p&gt;那么在 taskAffinity 属性起作用的情况下，除了 taskAffinity 值为空字符串的 Activity，具有相同 taskAffinity 的 Activity 会运行在同一个 task 中，即使它们处于不同的应用中。taskAffinity 为空字符串表示这个 Activity 不会与其他任何 task 关联。&lt;/p&gt;
+&lt;p&gt;那么&lt;strong&gt;在 taskAffinity 属性起作用&lt;/strong&gt;的情况下，除了 taskAffinity 值为空字符串的 Activity，具有相同 taskAffinity 的 Activity 会运行在同一个 task 中，即使它们处于不同的应用中。taskAffinity 为空字符串表示这个 Activity 不会与其他任何 task 关联。&lt;/p&gt;
 &lt;h2 id=&quot;2-manifests-xml-中的-launchMode&quot;&gt;&lt;a href=&quot;#2-manifests-xml-中的-launchMode&quot; class=&quot;headerlink&quot; title=&quot;2. manifests.xml 中的 launchMode&quot;&gt;&lt;/a&gt;2. &lt;code&gt;manifests.xml&lt;/code&gt; 中的 launchMode&lt;/h2&gt;&lt;p&gt;我们可以在 &lt;code&gt;manifests.xml&lt;/code&gt; 中为 activity 指定 &lt;code&gt;android:launchMode&lt;/code&gt; 属性，可以的取值有 &lt;code&gt;standard&lt;/code&gt;，&lt;code&gt;singleTop&lt;/code&gt;，&lt;code&gt;singleTask&lt;/code&gt;，&lt;code&gt;singleInstance&lt;/code&gt;，默认值是 &lt;code&gt;standard&lt;/code&gt;。&lt;/p&gt;
 &lt;p&gt;那么我们不设置 Intent flags（下文会讲到）的情况下启动一个 activity 的时候，系统就会根据 &lt;code&gt;manifests.xml&lt;/code&gt; 里设置的 launchMode 来决定 activity 启动模式。下面是四种启动模式的处理说明。&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;code&gt;standard&lt;/code&gt;，&lt;code&gt;singleTop&lt;/code&gt;：在当前 task 中启动，忽略 taskAffinity 属性。&lt;br&gt;  两种模式的区别是 &lt;code&gt;standard&lt;/code&gt; 模式每次启动都会创建新的实例，而 &lt;code&gt;singleTop&lt;/code&gt; 模式则是若已经有该 activity 的实例存在于 task 栈顶的情况下不再创建新实例，而是回调该实例的 &lt;code&gt;onNewIntent()&lt;/code&gt; 方法。&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;standard&lt;/code&gt;，&lt;code&gt;singleTop&lt;/code&gt;：在当前 task 中启动，&lt;strong&gt;忽略 taskAffinity 属性&lt;/strong&gt;。&lt;br&gt;  两种模式的区别是 &lt;code&gt;standard&lt;/code&gt; 模式每次启动都会创建新的实例，而 &lt;code&gt;singleTop&lt;/code&gt; 模式则是若已经有该 activity 的实例存在于 task 栈顶的情况下不再创建新实例，而是回调该实例的 &lt;code&gt;onNewIntent()&lt;/code&gt; 方法。&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p&gt;&lt;code&gt;singleTask&lt;/code&gt;：这时该 activity 要在哪个 task 中运行就由我们前面指定的 taskAffinity 来决定了（该 activity 只能运行在 taskAffinity 与自己的 taskAffinity 相同的 task 中）。并且在这个 task 中该 activity 的实例只允许存在一个，若已经有一个实例在栈顶，就会回调它的 &lt;code&gt;onNewIntent()&lt;/code&gt; 方法；若有实例且不在栈顶，系统则会将该 task 中该位于该实例之上的 activity 出栈销毁，使该实例回到前台，并回调其 &lt;code&gt;onNewIntent()&lt;/code&gt; 方法。&lt;/p&gt;
 &lt;/li&gt;
@@ -198,11 +198,11 @@
 &lt;/ul&gt;
 &lt;h2 id=&quot;3-Intent-flag&quot;&gt;&lt;a href=&quot;#3-Intent-flag&quot; class=&quot;headerlink&quot; title=&quot;3. Intent flag&quot;&gt;&lt;/a&gt;3. Intent flag&lt;/h2&gt;&lt;p&gt;影响 activity 启动模式的另一个地方就是 Intent flag 了。我们可以在使用 Intent 启动一个 activity 的时候可以调用 Intent 的 &lt;code&gt;setFlag()&lt;/code&gt; 方法来为它设置标志位，且 Intent flag 具有更高的优先级。影响 activity 启动模式的 Intent flag 有下面几个。&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;code&gt;FLAG_ACTIVITY_NEW_TASK&lt;/code&gt;：在新 task 中启动 activity，效果与 &lt;code&gt;singleTask&lt;/code&gt; 模式相同。&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;FLAG_ACTIVITY_NEW_TASK&lt;/code&gt;：在新 task 中启动 activity，效果与 &lt;code&gt;singleTask&lt;/code&gt; 模式类似，但不会清除目标 activity 之上的 activity。使用这个 flag 可以实现应用间切换的效果。&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;&lt;p&gt;&lt;code&gt;FLAG_ACTIVITY_SINGLE_TOP&lt;/code&gt;：与 &lt;code&gt;singleTop&lt;/code&gt; 模式效果相同。&lt;/p&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;p&gt;&lt;code&gt;FLAG_ACTIVITY_CLEAR_TOP&lt;/code&gt;：若目标 activity 在其 task 中已经有实例存在，则将 task 中其上的 activity 出栈销毁，使该实例回到前台，并回调其 &lt;code&gt;onNewIntent()&lt;/code&gt; 方法。&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;&lt;code&gt;FLAG_ACTIVITY_CLEAR_TOP&lt;/code&gt;：若目标 activity 在其 task 中已经有实例存在，则将 task 中其上的 activity 出栈销毁，使该实例回到前台，并回调其 &lt;code&gt;onNewIntent()&lt;/code&gt; 方法。与 &lt;code&gt;FLAG_ACTIVITY_NEW_TASK&lt;/code&gt; 结合使用可以实现 &lt;code&gt;singleTask&lt;/code&gt; 模式的效果。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
 </content>
@@ -214,7 +214,7 @@
     </summary>
     
     
-      <category term="Launch mode" scheme="https://wsxyeah.github.io/tags/Launch-mode/"/>
+      <category term="LaunchMode" scheme="https://wsxyeah.github.io/tags/LaunchMode/"/>
     
   </entry>
   
