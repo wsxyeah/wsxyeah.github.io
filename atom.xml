@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://wsxyeah.github.io/"/>
-  <updated>2016-04-03T13:44:49.000Z</updated>
+  <updated>2016-04-03T23:59:45.000Z</updated>
   <id>https://wsxyeah.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="https://wsxyeah.github.io/2016/04/03/touch-event/"/>
     <id>https://wsxyeah.github.io/2016/04/03/touch-event/</id>
     <published>2016-04-03T13:30:04.000Z</published>
-    <updated>2016-04-03T13:44:49.000Z</updated>
+    <updated>2016-04-03T23:59:45.000Z</updated>
     
     <content type="html">&lt;h2 id=&quot;1-形式&quot;&gt;&lt;a href=&quot;#1-形式&quot; class=&quot;headerlink&quot; title=&quot;1. 形式&quot;&gt;&lt;/a&gt;1. 形式&lt;/h2&gt;&lt;p&gt;Touch 事件被封装成 MotionEvent 对象来传递。&lt;br&gt;由 ACTION_DOWN 开始，经过若干次 ACTION_MOVE 并以 ACTION_UP 结束的一个事件序列称为一个 gesture。&lt;/p&gt;
 &lt;h2 id=&quot;2-角色&quot;&gt;&lt;a href=&quot;#2-角色&quot; class=&quot;headerlink&quot; title=&quot;2. 角色&quot;&gt;&lt;/a&gt;2. 角色&lt;/h2&gt;&lt;p&gt;涉及 Touch 事件处理的角色有四种：&lt;/p&gt;
@@ -30,6 +30,7 @@
 &lt;li&gt;ViewGroup&lt;/li&gt;
 &lt;li&gt;View&lt;/li&gt;
 &lt;/ul&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;3-基本流程&quot;&gt;&lt;a href=&quot;#3-基本流程&quot; class=&quot;headerlink&quot; title=&quot;3. 基本流程&quot;&gt;&lt;/a&gt;3. 基本流程&lt;/h2&gt;&lt;p&gt;事件在 activity 中的分发起始于 &lt;code&gt;dispatchTouchEvent()&lt;/code&gt; 方法。从源码可以看出 activity 调用了 Window 的 &lt;code&gt;superDispatchTouchEvent()&lt;/code&gt; 方法来处理，若返回值为 true，则结束事件分发，否则调用 &lt;code&gt;onTouchEvent()&lt;/code&gt;  方法。&lt;/p&gt;
 &lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;boolean&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;dispatchTouchEvent&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(MotionEvent ev)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (ev.getAction() == MotionEvent.ACTION_DOWN) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		onUserInteraction();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (getWindow().superDispatchTouchEvent(ev)) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;true&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;return&lt;/span&gt; onTouchEvent(ev);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;Window 的实现类为 PhoneWindow，PhoneWindow 实际调用了 DecorView 的 &lt;code&gt;superDispatchTouchEvent()&lt;/code&gt;。&lt;br&gt;而 DecorView 是 activity 中的顶级 View，它其实是一个 FrameLayout，它的 &lt;code&gt;superDispatchTouchEvent()&lt;/code&gt; 直接调用了 ViewGroup 的 &lt;code&gt;dispatchTouchEvent()&lt;/code&gt;。&lt;/p&gt;
@@ -52,7 +53,14 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;1-形式&quot;&gt;&lt;a href=&quot;#1-形式&quot; class=&quot;headerlink&quot; title=&quot;1. 形式&quot;&gt;&lt;/a&gt;1. 形式&lt;/h2&gt;&lt;p&gt;Touch 事件被封装成 MotionEvent 对象来传递。&lt;br&gt;由 ACTION_DOWN 开始，经过若干次 AC
+      &lt;h2 id=&quot;1-形式&quot;&gt;&lt;a href=&quot;#1-形式&quot; class=&quot;headerlink&quot; title=&quot;1. 形式&quot;&gt;&lt;/a&gt;1. 形式&lt;/h2&gt;&lt;p&gt;Touch 事件被封装成 MotionEvent 对象来传递。&lt;br&gt;由 ACTION_DOWN 开始，经过若干次 ACTION_MOVE 并以 ACTION_UP 结束的一个事件序列称为一个 gesture。&lt;/p&gt;
+&lt;h2 id=&quot;2-角色&quot;&gt;&lt;a href=&quot;#2-角色&quot; class=&quot;headerlink&quot; title=&quot;2. 角色&quot;&gt;&lt;/a&gt;2. 角色&lt;/h2&gt;&lt;p&gt;涉及 Touch 事件处理的角色有四种：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Activity&lt;/li&gt;
+&lt;li&gt;Window&lt;/li&gt;
+&lt;li&gt;ViewGroup&lt;/li&gt;
+&lt;li&gt;View&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     
@@ -64,7 +72,7 @@
     <link href="https://wsxyeah.github.io/2016/03/13/date-format/"/>
     <id>https://wsxyeah.github.io/2016/03/13/date-format/</id>
     <published>2016-03-13T00:33:39.000Z</published>
-    <updated>2016-03-30T01:27:17.000Z</updated>
+    <updated>2016-04-03T23:59:59.000Z</updated>
     
     <content type="html">&lt;p&gt;Java 中有 &lt;code&gt;java.text.DateFormat&lt;/code&gt; 这个类来专门处理日期格式，它的实例仅能通过三个工厂方法获取，然后就可以调用 &lt;code&gt;format()&lt;/code&gt; 和 &lt;code&gt;parse()&lt;/code&gt; 方法来格式化和解析了。&lt;/p&gt;
 &lt;ul&gt;
@@ -79,6 +87,7 @@
 &lt;li&gt;LONG is longer, such as January 12, 1952 or 3:30:32pm&lt;/li&gt;
 &lt;li&gt;FULL is pretty completely specified, such as Tuesday, April 12, 1952 AD or 3:30:42pm PST.&lt;/li&gt;
 &lt;/ul&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;p&gt;我们常用的是其子类 &lt;code&gt;SimpleDateFormat&lt;/code&gt;，它可以直接传入一个字符串 pattern 来定义格式，详细文档可以看这里 &lt;a href=&quot;http://developer.android.com/intl/zh-cn/reference/java/text/SimpleDateFormat.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://developer.android.com/intl/zh-cn/reference/java/text/SimpleDateFormat.html&lt;/a&gt;。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;坑出没注意&lt;/strong&gt;&lt;br&gt;&lt;strong&gt;如果要解析的日期字符串不是纯数字（比如含有用文字表示的的月份或者周几）的话，一定要记得传入 Locale。&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;另外一种日期的格式化问题就是弄成那种像 &lt;code&gt;2小时前&lt;/code&gt;，&lt;code&gt;1天前&lt;/code&gt; 这样的格式。Android 其实自带了一个 &lt;code&gt;DataUtils&lt;/code&gt; 类来处理这种格式。&lt;/p&gt;
@@ -87,7 +96,19 @@
     
     <summary type="html">
     
-      &lt;p&gt;Java 中有 &lt;code&gt;java.text.DateFormat&lt;/code&gt; 这个类来专门处理日期格式，它的实例仅能通过三个工厂方法获取，然后就可以调用 &lt;code&gt;format()&lt;/code&gt; 和 &lt;code&gt;parse()&lt;/code&gt; 方法来格式化和解析了。&lt;
+      &lt;p&gt;Java 中有 &lt;code&gt;java.text.DateFormat&lt;/code&gt; 这个类来专门处理日期格式，它的实例仅能通过三个工厂方法获取，然后就可以调用 &lt;code&gt;format()&lt;/code&gt; 和 &lt;code&gt;parse()&lt;/code&gt; 方法来格式化和解析了。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;DateFormat.getDateInstance([int style[, Locale aLocale]])&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DateFormat.getDateTimeInstance([int dateStyle, int timeStyle[, Locale aLocale]])&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;DateFormat.getTimeInstance([int style[, Locale aLocale]])&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;其中的 style 可以是 SHORT， MEDIUM， LONG 或者 FULL。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;SHORT is completely numeric, such as 12.13.52 or 3:30pm&lt;/li&gt;
+&lt;li&gt;MEDIUM is longer, such as Jan 12, 1952&lt;/li&gt;
+&lt;li&gt;LONG is longer, such as January 12, 1952 or 3:30:32pm&lt;/li&gt;
+&lt;li&gt;FULL is pretty completely specified, such as Tuesday, April 12, 1952 AD or 3:30:42pm PST.&lt;/li&gt;
+&lt;/ul&gt;
     
     </summary>
     
@@ -99,10 +120,11 @@
     <link href="https://wsxyeah.github.io/2016/03/03/thinking-about-handler/"/>
     <id>https://wsxyeah.github.io/2016/03/03/thinking-about-handler/</id>
     <published>2016-03-03T13:00:42.000Z</published>
-    <updated>2016-03-30T01:28:05.000Z</updated>
+    <updated>2016-04-04T00:00:05.000Z</updated>
     
     <content type="html">&lt;p&gt;Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。&lt;/p&gt;
 &lt;p&gt;下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;1-为目标线程建立一个消息循环用来“监听”消息&quot;&gt;&lt;a href=&quot;#1-为目标线程建立一个消息循环用来“监听”消息&quot; class=&quot;headerlink&quot; title=&quot;1. 为目标线程建立一个消息循环用来“监听”消息&quot;&gt;&lt;/a&gt;1. 为目标线程建立一个消息循环用来“监听”消息&lt;/h2&gt;&lt;p&gt;我们都知道 Java 中一个线程执行的入口点是它的 &lt;code&gt;run()&lt;/code&gt; 方法（或者对应 Runable 对象的 &lt;code&gt;run()&lt;/code&gt; 方法），我们要为目标线程建立消息循环就需要在此处进行操作，否则线程代码一下子就执行完了，结束掉了。&lt;/p&gt;
 &lt;p&gt;这时我们就需要 Looper 来完成这个工作了，从其命名我们就可以看出来它是作为一个“循环器”来使用，它可以方便地为我们的线程建立消息循环。我们在使用 Looper 的时候都是先调用 &lt;code&gt;Looper.prepare()&lt;/code&gt; ,然后创建 Handler 作为消息处理器，最后再调用 &lt;code&gt;Looper.loop()&lt;/code&gt; 来启动消息循环。&lt;/p&gt;
 &lt;p&gt;那么 &lt;code&gt;Looper.prepare()&lt;/code&gt; 干了些什么事情呢，我们来看一下其源码。&lt;/p&gt;
@@ -134,7 +156,7 @@
     <summary type="html">
     
       &lt;p&gt;Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。&lt;/p&gt;
-&lt;p&gt;下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 
+&lt;p&gt;下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。&lt;/p&gt;
     
     </summary>
     
@@ -146,9 +168,10 @@
     <link href="https://wsxyeah.github.io/2015/12/19/activity-launch-mode/"/>
     <id>https://wsxyeah.github.io/2015/12/19/activity-launch-mode/</id>
     <published>2015-12-19T08:43:40.000Z</published>
-    <updated>2016-03-30T01:31:24.000Z</updated>
+    <updated>2016-04-04T00:00:09.000Z</updated>
     
     <content type="html">&lt;p&gt;做 Android 的同学想必对 activity 启动模式都不陌生，activity 有四种启动模式（ &lt;code&gt;standard&lt;/code&gt;，&lt;code&gt;singleTop&lt;/code&gt;，&lt;code&gt;singleTask&lt;/code&gt;，&lt;code&gt;singleInstance&lt;/code&gt;），网上和一些书上也有各种讲解，但这些文章大多是针对四种启动模式进行介绍，总是在看过一段时间后就忘掉了。本文希望带你重新理解 activity 启动模式，并理解一些其他的相关概念，而不是仅仅针对四种启动模式。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;1-从-Task-说起&quot;&gt;&lt;a href=&quot;#1-从-Task-说起&quot; class=&quot;headerlink&quot; title=&quot;1. 从 Task 说起&quot;&gt;&lt;/a&gt;1. 从 Task 说起&lt;/h2&gt;&lt;p&gt;Activity 启动模式是与 task 密切相关的，所以我们先从 task 说起。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;A task is a collection of activities that users interact with when performing a certain job. The activities are arranged in a stack (the &lt;em&gt;back stack&lt;/em&gt;), in the order in which each activity is opened.&lt;/p&gt;
@@ -180,7 +203,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;做 Android 的同学想必对 activity 启动模式都不陌生，activity 有四种启动模式（ &lt;code&gt;standard&lt;/code&gt;，&lt;code&gt;singleTop&lt;/code&gt;，&lt;code&gt;singleTask&lt;/code&gt;，&lt;code&gt;singleIns
+      &lt;p&gt;做 Android 的同学想必对 activity 启动模式都不陌生，activity 有四种启动模式（ &lt;code&gt;standard&lt;/code&gt;，&lt;code&gt;singleTop&lt;/code&gt;，&lt;code&gt;singleTask&lt;/code&gt;，&lt;code&gt;singleInstance&lt;/code&gt;），网上和一些书上也有各种讲解，但这些文章大多是针对四种启动模式进行介绍，总是在看过一段时间后就忘掉了。本文希望带你重新理解 activity 启动模式，并理解一些其他的相关概念，而不是仅仅针对四种启动模式。&lt;/p&gt;
     
     </summary>
     
@@ -192,10 +215,11 @@
     <link href="https://wsxyeah.github.io/2015/12/06/android-ndk-start/"/>
     <id>https://wsxyeah.github.io/2015/12/06/android-ndk-start/</id>
     <published>2015-12-06T03:10:08.000Z</published>
-    <updated>2016-04-02T06:31:17.000Z</updated>
+    <updated>2016-04-04T00:00:14.000Z</updated>
     
     <content type="html">&lt;p&gt;之前也曾看过一些介绍 NDK 的文章，但是由于嫌（tuo）麻（yan）烦（zheng）一直没有实践过，这两天读了些文章和文档，打算把 NDK 的项目搭建的一些东西整理一下。&lt;/p&gt;
 &lt;p&gt;本文主要介绍 Eclipse 下和 Android Studio 下 NDK 开发环境的搭建。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;1-NDK-下载&quot;&gt;&lt;a href=&quot;#1-NDK-下载&quot; class=&quot;headerlink&quot; title=&quot;1. NDK 下载&quot;&gt;&lt;/a&gt;1. NDK 下载&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;http://developer.android.com/ndk/downloads/index.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://developer.android.com/ndk/downloads/index.html&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;在这里根据平台选择相应的文件下载。&lt;/p&gt;
 &lt;ul&gt;
@@ -231,7 +255,7 @@
     <summary type="html">
     
       &lt;p&gt;之前也曾看过一些介绍 NDK 的文章，但是由于嫌（tuo）麻（yan）烦（zheng）一直没有实践过，这两天读了些文章和文档，打算把 NDK 的项目搭建的一些东西整理一下。&lt;/p&gt;
-&lt;p&gt;本文主要介绍 Eclipse 下和 Android Studio 下 NDK 开发环境
+&lt;p&gt;本文主要介绍 Eclipse 下和 Android Studio 下 NDK 开发环境的搭建。&lt;/p&gt;
     
     </summary>
     
@@ -245,9 +269,10 @@
     <link href="https://wsxyeah.github.io/2015/11/22/android-async/"/>
     <id>https://wsxyeah.github.io/2015/11/22/android-async/</id>
     <published>2015-11-22T02:43:12.000Z</published>
-    <updated>2016-03-30T01:34:18.000Z</updated>
+    <updated>2016-04-04T00:00:19.000Z</updated>
     
     <content type="html">&lt;p&gt;在 Android 中，由于主线程负责维护 UI，不能被阻塞，那么在通过磁盘或者网络进行异步加载数据的时候就需要使用多线程了。以下是我整理的几种使用多线程执行异步操作的方式，如有纰漏欢迎指正。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;h2 id=&quot;1-Handler&quot;&gt;&lt;a href=&quot;#1-Handler&quot; class=&quot;headerlink&quot; title=&quot;1. Handler&quot;&gt;&lt;/a&gt;1. Handler&lt;/h2&gt;&lt;p&gt;   Android 中多线程通信基本的方式是使用 Handler 机制，基本使用方式如下。&lt;/p&gt;
    &lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;15&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;16&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;17&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;18&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;19&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;20&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;21&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//init handler on the original thread&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;class OriginalThread extends Thread &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; public Handler mHandler;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; public void run() &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   Looper.prepare();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   mHandler = new Handler() &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;     public void handleMessage(Message msg) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;     	// process incoming messages here&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;     &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   &amp;#125;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;   Looper.loop();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt; &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;//send message to the original thread&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mHandler.post(Runnable);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mHandler.postAtTime(Runnable, long);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mHandler.postDelayed(Runnable, long);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mHandler.sendEmptyMessage(int);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mHandler.sendMessage(Message);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mHandler.sendMessageAtTime(Message, long);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;mHandler.sendMessageDelayed(Message, long);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;   系统还内置了AsyncQueryHandler 辅助子类，方便使用 ContentResolver 进行异步查询操作。&lt;/p&gt;
@@ -266,7 +291,6 @@
     <summary type="html">
     
       &lt;p&gt;在 Android 中，由于主线程负责维护 UI，不能被阻塞，那么在通过磁盘或者网络进行异步加载数据的时候就需要使用多线程了。以下是我整理的几种使用多线程执行异步操作的方式，如有纰漏欢迎指正。&lt;/p&gt;
-&lt;h2 id=&quot;1-Handler&quot;&gt;&lt;a href=&quot;#1-Handl
     
     </summary>
     
