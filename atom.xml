@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://wsxyeah.github.io/"/>
-  <updated>2016-04-03T23:59:45.000Z</updated>
+  <updated>2016-05-22T13:00:22.000Z</updated>
   <id>https://wsxyeah.github.io/</id>
   
   <author>
@@ -14,6 +14,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Ubuntu 16.04 下搭建 Samba 服务</title>
+    <link href="https://wsxyeah.github.io/2016/05/22/ubuntu-samba-service/"/>
+    <id>https://wsxyeah.github.io/2016/05/22/ubuntu-samba-service/</id>
+    <published>2016-05-22T12:23:56.000Z</published>
+    <updated>2016-05-22T13:00:22.000Z</updated>
+    
+    <content type="html">&lt;p&gt;最近要读源码的时候都要到网页上找，网页跳转不仅速度慢也十分麻烦，于是打算把 AOSP 源码同步到本地。&lt;br&gt;由于我的 Mac 剩余磁盘空间只有 100 多 G 了，就用原来联想的机器（用的是 Ubuntu 16.04）同步了 24GB+ 的 AOSP 源码。并打算在上面搭建 Samba 服务，这样就可以直接在 Mac 上阅读源码了，哈哈。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;安装-Samba&quot;&gt;&lt;a href=&quot;#安装-Samba&quot; class=&quot;headerlink&quot; title=&quot;安装 Samba&quot;&gt;&lt;/a&gt;安装 Samba&lt;/h2&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;sudo apt update &amp;amp;&amp;amp; sudo apt install samba&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;选择共享目录&quot;&gt;&lt;a href=&quot;#选择共享目录&quot; class=&quot;headerlink&quot; title=&quot;选择共享目录&quot;&gt;&lt;/a&gt;选择共享目录&lt;/h2&gt;&lt;p&gt;直接在 Ubuntu 的文件管理器 GUI 右键菜单里选择 属性 -&amp;gt; 本地文件共享，并勾选&lt;code&gt;共享此目录&lt;/code&gt;以及&lt;code&gt;允许其他人来创建和删除这个文件夹里的文件&lt;/code&gt;就可以了，系统会为我们自动设置目录的权限及共享配置。&lt;/p&gt;
+&lt;h2 id=&quot;添加用户&quot;&gt;&lt;a href=&quot;#添加用户&quot; class=&quot;headerlink&quot; title=&quot;添加用户&quot;&gt;&lt;/a&gt;添加用户&lt;/h2&gt;&lt;p&gt;我们可以单独创建一个用户用于登录 Samba 服务。&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;sudo useradd smb&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;sudo passwd smb&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;允许使用该用户登录 Samba 并重启 Samba 服务。&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;sudo smbpasswd -a smb &amp;amp;&amp;amp; sudo service smbd restart&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;现在只要在 Finder 左侧边栏选择服务器，点击 &lt;code&gt;Connect as&lt;/code&gt; 并使用创建的账户登录就可以直接访问共享目录啦。&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近要读源码的时候都要到网页上找，网页跳转不仅速度慢也十分麻烦，于是打算把 AOSP 源码同步到本地。&lt;br&gt;由于我的 Mac 剩余磁盘空间只有 100 多 G 了，就用原来联想的机器（用的是 Ubuntu 16.04）同步了 24GB+ 的 AOSP 源码。并打算在上面搭建 Samba 服务，这样就可以直接在 Mac 上阅读源码了，哈哈。&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>浅谈 Android 事件分发机制</title>
