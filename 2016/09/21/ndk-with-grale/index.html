@@ -13,7 +13,7 @@
 <li>ndkBuild_build_output.txt</li>
 </ul>
 <p>如此看来 Gradle 采取的是根据我们的配置生成对应的脚本，在外部执行编译脚本，再将结果进行打包的策略，这样便使原来的项目无缝迁移，同时也为 Cmake 这样的组织方式提供了扩展。</p>
-<p>另外现在可以针对不同渠道的包名指定宏了。比如我们的某个渠道包指定了 applicationId，那么打包后的也包名会变，会导致 JNI 函数注册出错，而现在则可以通过在编译器参数中定义宏的方式将包名传进 JNI 中，再在 JNI 代码中做对应处理。</p>
+<p>另外现在可以针对不同渠道做定制了。可以通过在编译器参数中定义宏的方式将参数传进 JNI 中，再在 JNI 代码中做对应处理。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ol>
 <li><a href="https://developer.android.com/studio/projects/add-native-code.html" target="_blank" rel="external">Add C and C++ Code to Your Project</a></li>
 <li><a href="http://android-developers.blogspot.com/2016/09/android-studio-2-2.html" target="_blank" rel="external">Android Studio 2.2</a></li>
@@ -27,4 +27,4 @@
     s.src = '//wsxyeah.disqus.com/embed.js';
     s.setAttribute('data-timestamp', +new Date());
     (d.head || d.body).appendChild(s);
-})();</script></div></section><footer><div class="paginator"><a href="/2016/07/23/jni-charset-encoding/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2016 <a href="https://wsxyeah.github.io">王少星</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
+})();</script></div></section><footer><div class="paginator"><a href="/2016/07/23/jni-charset-encoding/" class="next">下一篇</a></div><div class="copyright"><p>© 2015 - 2016 <a href="https://wsxyeah.github.io">王少星</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
