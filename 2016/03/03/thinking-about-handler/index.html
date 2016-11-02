@@ -31,13 +31,4 @@
 <p>所以如果我们在子线程中完成了耗时操作想要切换到主线程更新 UI 的时候，思路应该是：</p>
 <p><code>主线程 Looper 的 MessageQueue -&gt; 主线程 Looper -&gt; 构造持有主线程 Looper 的 Handler（new Handler(Looper.getMainLooper())） -&gt; 使用该 Handler 发送消息</code></p>
 <p>以上就是我对 Android 中进程间通信机制的理解。</p>
-</div></article><hr style="height: 24px"><div id="disqus_thread"></div><script type="text/javascript">var disqus_config = function () {
-    this.page.url = 'https://wsxyeah.github.io/2016/03/03/thinking-about-handler/';
-    this.page.identifier = '2016/03/03/thinking-about-handler/';
-};
-(function() {
-    var d = document, s = d.createElement('script');
-    s.src = '//wsxyeah.disqus.com/embed.js';
-    s.setAttribute('data-timestamp', +new Date());
-    (d.head || d.body).appendChild(s);
-})();</script></div></section><footer><div class="paginator"><a href="/2016/03/13/date-format/" class="prev">PREV</a><a href="/2015/12/19/activity-launch-mode/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2016 <a href="https://wsxyeah.github.io">王少星</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/03/13/date-format/" class="prev">PREV</a><a href="/2015/12/19/activity-launch-mode/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2016 <a href="https://wsxyeah.github.io">王少星</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script></body></html>
