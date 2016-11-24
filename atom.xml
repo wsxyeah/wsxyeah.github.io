@@ -320,13 +320,13 @@
   </entry>
   
   <entry>
-    <title>我对 Android 线程间通信机制的思考</title>
+    <title>我对 Android 消息机制的思考</title>
     <link href="https://wsxyeah.github.io/2016/03/03/thinking-about-handler/"/>
     <id>https://wsxyeah.github.io/2016/03/03/thinking-about-handler/</id>
     <published>2016-03-03T13:00:42.000Z</published>
-    <updated>2016-04-04T00:26:55.000Z</updated>
+    <updated>2016-11-24T13:42:54.000Z</updated>
     
-    <content type="html"><![CDATA[<p>Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信，所以也被称为消息机制。</p>
+    <content type="html"><![CDATA[<p>Android 中线程间通信消息机制的基本思想其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。</p>
 <p>下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。</p>
 <a id="more"></a>
 <h2 id="1-为目标线程建立一个消息循环用来“监听”消息"><a href="#1-为目标线程建立一个消息循环用来“监听”消息" class="headerlink" title="1. 为目标线程建立一个消息循环用来“监听”消息"></a>1. 为目标线程建立一个消息循环用来“监听”消息</h2><p>我们都知道 Java 中一个线程执行的入口点是它的 <code>run()</code> 方法（或者对应 Runable 对象的 <code>run()</code> 方法），我们要为目标线程建立消息循环就需要在此处进行操作，否则线程代码一下子就执行完了，结束掉了。</p>
@@ -358,12 +358,11 @@
 </ul>
 <p>所以如果我们在子线程中完成了耗时操作想要切换到主线程更新 UI 的时候，思路应该是：</p>
 <p><code>主线程 Looper 的 MessageQueue -&gt; 主线程 Looper -&gt; 构造持有主线程 Looper 的 Handler（new Handler(Looper.getMainLooper())） -&gt; 使用该 Handler 发送消息</code></p>
-<p>以上就是我对 Android 中进程间通信机制的理解。</p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;Android 中线程间通信的基本机制其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信，所以也被称为消息机制。&lt;/p&gt;
+      &lt;p&gt;Android 中线程间通信消息机制的基本思想其实很简单：为目标线程建立一个消息循环用来“监听”消息，之后我们只要在其他线程中向目标线程发送消息就可以被目标线程接收并处理，这样就完成了两个线程之间的通信。&lt;/p&gt;
 &lt;p&gt;下面我们一步一步来分析这个机制的实现（以下源码均基于 SDK 23）。&lt;/p&gt;
     
     </summary>
