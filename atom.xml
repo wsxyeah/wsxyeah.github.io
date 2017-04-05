@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://wsxyeah.github.io/"/>
-  <updated>2017-01-18T08:08:43.000Z</updated>
+  <updated>2017-04-05T03:38:15.000Z</updated>
   <id>https://wsxyeah.github.io/</id>
   
   <author>
@@ -14,6 +14,85 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Marshmallow Runtime Permissions</title>
+    <link href="https://wsxyeah.github.io/2017/04/05/Marshmallow-Runtime-Permissions/"/>
+    <id>https://wsxyeah.github.io/2017/04/05/Marshmallow-Runtime-Permissions/</id>
+    <published>2017-04-05T02:06:33.000Z</published>
+    <updated>2017-04-05T03:38:15.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>从 Android 6.0 （API 23） 开始系统开始将应用权限收紧，将权限分为普通（Normal Permissions）权限与危险权限（Dangerous Permissions）。</p>
+<p>普通权限不会影响到用户的隐私，只要像以往那样在 manifest 中声明即可使用。<br>危险权限不仅要在 manifest 中声明，而且需要获得用户的批准。虽然可以临时将 target API 设置在 23 以下规避，但一来用户仍然可以在系统设置中强制拒绝授予权限造成应用崩溃，二来也并非长久之计。</p>
+<a id="more"></a>
+<h1 id="危险权限及分组"><a href="#危险权限及分组" class="headerlink" title="危险权限及分组"></a>危险权限及分组</h1><p>系统分组处理危险权限的授予，如果应用已经获得某个组内的某项权限，那么也就默认获得了该组内的其他权限。比如我们已经获得了 <code>READ_CONTACTS</code> 权限，那么相当于 <code>CONTACTS</code> 组内的 <code>WRITE_CONTACTS</code> 和 <code>GET_ACCOUNTS</code> 权限也获得了。</p>
+<table>
+<thead>
+<tr>
+<th>Permission Group</th>
+<th>Permissions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CALENDAR</td>
+<td><div>READ_CALENDAR</div><div>WRITE_CALENDAR</div></td>
+</tr>
+<tr>
+<td>CAMERA</td>
+<td>CAMERA</td>
+</tr>
+<tr>
+<td>CONTACTS</td>
+<td><div>READ_CONTACTS</div><div>WRITE_CONTACTS</div><div>GET_ACCOUNTS</div></td>
+</tr>
+<tr>
+<td>LOCATION</td>
+<td><div>ACCESS_FINE_LOCATION</div><div>ACCESS_COARSE_LOCATION</div></td>
+</tr>
+<tr>
+<td>MICROPHONE</td>
+<td>RECORD_AUDIO</td>
+</tr>
+<tr>
+<td>PHONE</td>
+<td><div>READ_PHONE_STATE</div><div>CALL_PHONE</div><div>READ_CALL_LOG</div><div>WRITE_CALL_LOG</div><div>ADD_VOICEMAIL</div><div>USE_SIP</div><div>PROCESS_OUTGOING_CALLS</div></td>
+</tr>
+<tr>
+<td>SENSORS</td>
+<td>BODY_SENSORS</td>
+</tr>
+<tr>
+<td>SMS</td>
+<td><div>SEND_SMS</div><div>RECEIVE_SMS</div><div>READ_SMS</div><div>RECEIVE_WAP_PUSH</div><div>RECEIVE_MMS</div></td>
+</tr>
+<tr>
+<td>STORAGE</td>
+<td><div>READ_EXTERNAL_STORAGE</div><div>WRITE_EXTERNAL_STORAGE</div></td>
+</tr>
+</tbody>
+</table>
+<h1 id="基本-API-使用"><a href="#基本-API-使用" class="headerlink" title="基本 API 使用"></a>基本 API 使用</h1><p>与运行时权限相关的 API 主要有以下几个方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Context/ContextCompat</span></div><div class="line"><span class="function"><span class="keyword">int</span> <span class="title">checkSelfPermission</span> <span class="params">(String permission)</span></span></div><div class="line"><span class="comment">// Activity/ActivityCompat</span></div><div class="line"><span class="keyword">boolean</span> <span class="title">shouldShowRequestPermissionRationale</span> <span class="params">(String permission)</span></div><div class="line"><span class="keyword">void</span> <span class="title">requestPermissions</span> <span class="params">(String[] permissions, <span class="keyword">int</span> requestCode)</span></div><div class="line"><span class="keyword">void</span> <span class="title">onRequestPermissionsResult</span> <span class="params">(<span class="keyword">int</span> requestCode, String[] permissions, <span class="keyword">int</span>[] grantResults)</span></div></pre></td></tr></table></figure>
+<p><code>checkSelfPermission</code> 方法用来检测是否已经获得某项权限，返回结果为<code>PackageManager.PERMISSION_GRANTED</code> 或 <code>PackageManager.PERMISSION_DENIED</code> 。</p>
+<p><code>shouldShowRequestPermissionRationale</code> 表示应用是否应该向用户解释为何需要权限。未请求过该权限时返回 false。</p>
+<p><code>requestPermissions</code> 执行请求权限的实际操作，在调用该方法时，系统弹出对话框让用户选择是否允许获取所请求的权限。<br>如果用户选择了 Never ask again 并拒绝授予，那么之后调用 <code>requestPermissions</code> 请求该权限直接会被拒绝，<code>shouldShowRequestPermissionRationale</code> 都会返回 false。</p>
+<p><code>onRequestPermissionsResult</code> 方法是 Activity 的一个回调方法，类似于 <code>onActivityResult</code>，返回权限请求的结果。</p>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">if</span> (ActivityCompat.checkSelfPermission(<span class="keyword">this</span>, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) &#123;</div><div class="line">    <span class="comment">// 未获得该权限</span></div><div class="line">    <span class="keyword">if</span> (ActivityCompat.shouldShowRequestPermissionRationale(<span class="keyword">this</span>, Manifest.permission.WRITE_EXTERNAL_STORAGE)) &#123;</div><div class="line">        <span class="comment">// 被拒绝过，向用户解释为何需要该权限后再请求</span></div><div class="line">        showPermissionExplanation();</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="comment">// 之前从未请求过该权限或被永久拒绝，直接发起请求</span></div><div class="line">        ActivityCompat.requestPermissions(<span class="keyword">this</span>,</div><div class="line">                <span class="keyword">new</span> String[]&#123;Manifest.permission.WRITE_EXTERNAL_STORAGE&#125;,</div><div class="line">                PERMISSION_REQUEST_STORAGE);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRequestPermissionsResult</span><span class="params">(<span class="keyword">int</span> requestCode, @NonNull String[] permissions, @NonNull <span class="keyword">int</span>[] grantResults)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.onRequestPermissionsResult(requestCode, permissions, grantResults);</div><div class="line">    <span class="keyword">if</span> (requestCode == PERMISSION_REQUEST_STORAGE) &#123;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; permissions.length; i++) &#123;</div><div class="line">            <span class="keyword">if</span> (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permissions[i])) &#123;</div><div class="line">                <span class="keyword">if</span> (PackageManager.PERMISSION_GRANTED == grantResults[i]) &#123;</div><div class="line">                    <span class="comment">// 成功获得权限</span></div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    <span class="comment">// 被拒绝</span></div><div class="line">                    <span class="comment">// 如果该权限必须的话，可以检查 shouldShowRequestPermissionRationale</span></div><div class="line">                    <span class="comment">// 若返回 true，表示用户永久拒绝，可以引导用户在系统设置中重新授予权限</span></div><div class="line">                    <span class="keyword">if</span> (!ActivityCompat.shouldShowRequestPermissionRationale(<span class="keyword">this</span>, Manifest.permission.WRITE_EXTERNAL_STORAGE)) &#123;</div><div class="line">                        showPermissionGuide();</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><ul>
+<li><a href="https://developer.android.com/training/permissions/requesting.html" target="_blank">Requesting Permissions at Run Time</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;从 Android 6.0 （API 23） 开始系统开始将应用权限收紧，将权限分为普通（Normal Permissions）权限与危险权限（Dangerous Permissions）。&lt;/p&gt;
+&lt;p&gt;普通权限不会影响到用户的隐私，只要像以往那样在 manifest 中声明即可使用。&lt;br&gt;危险权限不仅要在 manifest 中声明，而且需要获得用户的批准。虽然可以临时将 target API 设置在 23 以下规避，但一来用户仍然可以在系统设置中强制拒绝授予权限造成应用崩溃，二来也并非长久之计。&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>Gradle for Android 笔记</title>
