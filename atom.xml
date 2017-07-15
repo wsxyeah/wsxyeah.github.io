@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://wsxyeah.github.io/"/>
-  <updated>2017-04-05T03:38:15.000Z</updated>
+  <updated>2017-07-15T01:20:24.000Z</updated>
   <id>https://wsxyeah.github.io/</id>
   
   <author>
@@ -14,6 +14,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>用 Word 写论文的一点儿经验</title>
+    <link href="https://wsxyeah.github.io/2017/05/20/Microsoft-Word-Skills/"/>
+    <id>https://wsxyeah.github.io/2017/05/20/Microsoft-Word-Skills/</id>
+    <published>2017-05-20T00:32:37.000Z</published>
+    <updated>2017-07-15T01:20:24.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>水一篇~</p>
+<a id="more"></a>
+<h2 id="1-善用-Style"><a href="#1-善用-Style" class="headerlink" title="1. 善用 Style"></a>1. 善用 Style</h2><p>写个论文格式什么的要求还是挺多的，标题／正文用什么字体，字号都有规定。要方便设置格式就要善用 Style。</p>
+<p>首先是选择一套与你的需求比较接近的基本主题，可以尽量降低自定义样式的工作量。</p>
+<p>然后你就可以按论文要求自定义 Style 了。打开 Styles Pane，就可以看到预定义的各种样式，可以直接将其应用到文中。针对某一个样式，可以直接进行修改，应用该样式的文本都可以随之更新，是不是很像写 CSS？样式还可以继承已有样式，颇有点 OO 的感觉。</p>
+<h2 id="2-参考文献的-tricks"><a href="#2-参考文献的-tricks" class="headerlink" title="2. 参考文献的 tricks"></a>2. 参考文献的 tricks</h2><p>一篇小论文还用不着 Citation 这么高级的功能，而且我大清自有国情在此，Word 的这个功能也不够本土化。要添加参考文献，只需要用 Cross-reference 就可以了。首先在知网或其他地方导出参考文献格式，复制到文中，然后使用 Word 给它们添加编号，再在原文引用的地方插入 Cross-reference 时直接选择对应的参考文献条目就好了。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;水一篇~&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>Marshmallow Runtime Permissions</title>
@@ -304,7 +328,7 @@
     <summary type="html">
     
       &lt;h2 id=&quot;坑&quot;&gt;&lt;a href=&quot;#坑&quot; class=&quot;headerlink&quot; title=&quot;坑&quot;&gt;&lt;/a&gt;坑&lt;/h2&gt;&lt;p&gt;JNI 开发中 Java 层向下传字符串比较常用的是 JNIEnv 的 GetStringUTFChars 方法将 &lt;code&gt;jstring&lt;/code&gt; 转为 &lt;code&gt;const char *&lt;/code&gt;，用完后使用 ReleaseStringUTFChars 方法释放。&lt;/p&gt;
-&lt;figure class=&quot;highlight c&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; jchar * &lt;span class=&quot;title&quot;&gt;GetStringChars&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(JNIEnv *env, jstring &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt;,&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;jboolean *isCopy)&lt;/span&gt;&lt;/span&gt;;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ReleaseStringChars&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(JNIEnv *env, jstring &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt;,&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; jchar *chars)&lt;/span&gt;&lt;/span&gt;;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight c&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; jchar * &lt;span class=&quot;title&quot;&gt;GetStringChars&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(JNIEnv *env, jstring &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt;,&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;jboolean *isCopy);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;ReleaseStringChars&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(JNIEnv *env, jstring &lt;span class=&quot;built_in&quot;&gt;string&lt;/span&gt;,&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;const&lt;/span&gt; jchar *chars);&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;然而使用该方法返回的字符串却并非采用标准 UTF-8 编码，而是Modified UTF-8 Strings，即一种修改过的 UTF-8 编码。&lt;/p&gt;
     
     </summary>
