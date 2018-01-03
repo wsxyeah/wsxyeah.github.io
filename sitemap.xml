@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://wsxyeah.github.io/about/index.html</loc>
+    
+    <lastmod>2018-01-03T13:26:50.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://wsxyeah.github.io/2017/07/15/no-more-magic-react-redux/</loc>
     
     <lastmod>2017-08-13T02:26:43.000Z</lastmod>
@@ -96,13 +103,6 @@
     <loc>https://wsxyeah.github.io/2015/12/06/android-ndk-start/</loc>
     
     <lastmod>2016-04-04T00:22:53.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://wsxyeah.github.io/about/index.html</loc>
-    
-    <lastmod>2016-04-04T00:04:14.000Z</lastmod>
     
   </url>
   
