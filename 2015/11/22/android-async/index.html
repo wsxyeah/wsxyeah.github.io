@@ -5,7 +5,7 @@
 <p>   系统还内置了AsyncQueryHandler 辅助子类，方便使用 ContentResolver 进行异步查询操作。</p>
 <p>   关于 Handler，需要注意的是，当 Handler 被声明为 Activity 的非静态内部类时， Handler 会持有外部 Activity 实例的引用，Handler 生命周期比 Activity 长时会导致 Activity 实例不能被正常释放，从而引起内存泄漏。一种解决方式是将 Handler 声明为 Activity 的静态内部类或者单独的类，在 Handler 内部使用 WeakReference/SoftReference 保存对 Activity的引用，既能访问 Activity 的 View 更新 UI，又可以避免内存泄漏。</p>
 <h2 id="2-AsyncTask"><a href="#2-AsyncTask" class="headerlink" title="2. AsyncTask"></a>2. AsyncTask</h2><p>   AsyncTask 方式是官方提供的用来简化手动写 Handler 的一种异步机制，其内部仍使用 Handler 实现。</p>
-<p>   需要继承AsyncTask<params, progress,="" result="">类，重写doInBackground，onPostExecute等回调方法，使用的时候调用 execute 方法（只能在 UI 线程调用）传入参数就可以方便的执行 IO 或网络等耗时操作并在操作完成时更新 UI。</params,></p>
+<p>   需要继承AsyncTask&lt;Params, Progress, Result&gt;类，重写doInBackground，onPostExecute等回调方法，使用的时候调用 execute 方法（只能在 UI 线程调用）传入参数就可以方便的执行 IO 或网络等耗时操作并在操作完成时更新 UI。</p>
 <p>   使用 AsyncTask 同样需要注意内存泄漏问题。</p>
 <h2 id="3-Activity-runOnUiThread-Runnable-action"><a href="#3-Activity-runOnUiThread-Runnable-action" class="headerlink" title="3. Activity.runOnUiThread(Runnable action)"></a>3. Activity.runOnUiThread(Runnable action)</h2><p>   算是 Handler 方式的一种语法糖吧，使用了 Activity 自身维护的 一个 mHandler 实例，便于在 UI 线程执行操作，比如异步获取数据后更新 UI。</p>
 <h2 id="4-Loader"><a href="#4-Loader" class="headerlink" title="4. Loader"></a>4. Loader</h2><p>   Loader 是在 Android 3.0 引入的用于在 Activity 和 Fragment 中简化异步加载数据的方式。</p>
