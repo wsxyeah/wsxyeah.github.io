@@ -1,0 +1,65 @@
+<!DOCTYPE html><html lang="default"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> Android Studio Apply Changes · 王少星的个人博客</title><meta name="description" content="Android Studio Apply Changes - 王少星"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/favicon.png"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="https://wsxyeah.github.io/atom.xml" title="王少星的个人博客"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/favicon.png" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="/about/" target="_self" class="nav-list-link">ABOUT</a></li><li class="nav-list-item"><a href="/friends/" target="_self" class="nav-list-link">FRIENDS</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">Android Studio Apply Changes</h1><div class="post-info">Aug 6, 2019</div><div class="post-content"><p>探究 Android Studio 3.5 新增的 <code>Apply Changes</code> 功能。</p>
+<ul>
+<li><a href="https://medium.com/androiddevelopers/android-studio-project-marble-apply-changes-e3048662e8cd" target="_blank" rel="noopener">Android Studio Project Marble: Apply Changes</a></li>
+<li><a href="https://www.zhihu.com/question/309772986" target="_blank" rel="noopener">Android Studio 3.5提供的”Apply Changes“是什么原理？</a></li>
+<li><a href="https://android.googlesource.com/platform/tools/base/+/studio-master-dev/deploy/" target="_blank" rel="noopener">Source Code</a></li>
+<li><a href="https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html" target="_blank" rel="noopener">JVM(TM) Tool Interface</a></li>
+<li><a href="http://jm.taobao.org/2011/03/15/756/" target="_blank" rel="noopener">JVMTI开发教程之一个简单的Agent</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/java/j-lo-jpda2/index.html" target="_blank" rel="noopener">JVMTI 和 Agent 实现</a></li>
+</ul>
+<a id="more"></a>
+<h2 id="Instant-Run"><a href="#Instant-Run" class="headerlink" title="Instant Run"></a><a href="https://medium.com/google-developers/instant-run-how-does-it-work-294a1633367f" target="_blank" rel="noopener">Instant Run</a></h2><ul>
+<li>构建过程动手脚</li>
+<li>Apk 里藏私货</li>
+<li>自定义 ClassLoader 热部署</li>
+<li>兼容性一般</li>
+</ul>
+<p><img src="https://miro.medium.com/max/1400/1*U2tXGUWaeDU7L3u9Z_U0fw.png" alt="Instant Run"></p>
+<h2 id="Apply-Changes"><a href="#Apply-Changes" class="headerlink" title="Apply Changes"></a>Apply Changes</h2><ul>
+<li>不关心构建过程，只对 apk 做 diff</li>
+<li>基于 JVMTI，需要 Android O+</li>
+</ul>
+<h3 id="基本流程"><a href="#基本流程" class="headerlink" title="基本流程"></a>基本流程</h3><ol>
+<li>对设备上安装的 apk 与新 apk 做 diff</li>
+<li>将 diff 推到设备上并应用改动</li>
+</ol>
+<h3 id="改动类型支持"><a href="#改动类型支持" class="headerlink" title="改动类型支持"></a>改动类型支持</h3><ol>
+<li>仅 res/assets 改动：应用改动的资源，重启 Activity</li>
+<li>仅 dex 改动：改动不能影响对象的内存布局，基于 JVMTI 进行类级别的 hot swap</li>
+<li>资源改动 + dex 改动</li>
+<li>其他改动：不支持</li>
+</ol>
+<h3 id="增量更新流程"><a href="#增量更新流程" class="headerlink" title="增量更新流程"></a>增量更新流程</h3><ol>
+<li>解析新 apk 的 zip entries</li>
+<li>拉取已安装的 apk 的 zip entries</li>
+<li>对以上两个列表做 diff，得出变更文件的列表</li>
+<li>根据文件列表 diff 验证是否支持 apply changes（是否改动 dex，资源之外的内容）</li>
+<li>根据 diff 计算（粒度为 zip entry 级别）dirty map，生成 instructions &amp; patch。<strong>注意这里不需要全量拉取已安装的 apk</strong>。</li>
+</ol>
+<svg width="373" height="154" viewbox="0 0 373 154" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="52" y="1" width="55" height="64" fill="#C4C4C4"/><rect x="107" y="1" width="76" height="64" fill="#7A7A7A"/><rect x="183" y="1" width="76" height="64" fill="#C4C4C4"/><rect x="259" y="1" width="37" height="64" fill="#7A7A7A"/><rect x="296" y="1" width="76" height="64" fill="#C4C4C4"/><rect x="51.5" y="0.5" width="321" height="65" stroke="#B4B4B4"/><rect x="259" y="90" width="54" height="64" fill="#93C595"/><rect x="107" y="90" width="103" height="64" fill="#93C595"/><text fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="12" letter-spacing="0em"><tspan x="143" y="126.102">patch</tspan></text><text fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="12" letter-spacing="0em"><tspan x="0" y="62.1016">old apk</tspan></text><text fill="white" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="12" letter-spacing="0em"><tspan x="133" y="37.1016">dirty</tspan></text><text fill="white" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="12" letter-spacing="0em"><tspan x="266" y="37.1016">dirty</tspan></text><text fill="black" xml:space="preserve" style="white-space: pre" font-family="Roboto" font-size="12" letter-spacing="0em"><tspan x="271" y="126.102">patch</tspan></text><path d="M277.646 90.3536C277.842 90.5488 278.158 90.5488 278.354 90.3536L281.536 87.1716C281.731 86.9763 281.731 86.6597 281.536 86.4645C281.34 86.2692 281.024 86.2692 280.828 86.4645L278 89.2929L275.172 86.4645C274.976 86.2692 274.66 86.2692 274.464 86.4645C274.269 86.6597 274.269 86.9763 274.464 87.1716L277.646 90.3536ZM277.5 65L277.5 90L278.5 90L278.5 65L277.5 65Z" fill="black"/><path d="M144.646 90.3536C144.842 90.5488 145.158 90.5488 145.354 90.3536L148.536 87.1716C148.731 86.9763 148.731 86.6597 148.536 86.4645C148.34 86.2692 148.024 86.2692 147.828 86.4645L145 89.2929L142.172 86.4645C141.976 86.2692 141.66 86.2692 141.464 86.4645C141.269 86.6597 141.269 86.9763 141.464 87.1716L144.646 90.3536ZM144.5 65L144.5 90L145.5 90L145.5 65L144.5 65Z" fill="black"/></svg>
+
+
+<ol start="6">
+<li>deltaPreInstall：adb 调用 <code>cmd package install-create</code> 创建 session，<code>install-write</code> 写入 instructions &amp; patch 数据。</li>
+<li>对 dex （里的类）进行 diff，得到需要 swap 的类列表。这里注意两点：<br> （1）类的 diff 只用比较 checksum<br> （2）dex 里类的信息其实是从数据库取的（预先写进去的）而非拉取设备上的 dex， ( &gt;﹏&lt;。)～ 这个问题卡了我好久，其实流程图上有写。</li>
+<li>Swap！adb 调用 <code>installer</code> 执行 swap</li>
+<li>Commit install</li>
+</ol>
+<p><img src="https://miro.medium.com/max/2000/1*aD1y7EprEnSzM-3FwbUsRQ.png" alt="flow"></p>
+<p><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/ZIP-64_Internal_Layout.svg/2560px-ZIP-64_Internal_Layout.svg.png" alt="zip"></p>
+<h3 id="Swap-amp-JVMTI-Agent"><a href="#Swap-amp-JVMTI-Agent" class="headerlink" title="Swap &amp; JVMTI Agent"></a>Swap &amp; JVMTI Agent</h3><ol>
+<li><code>installer</code> 进程开启一个 socket server</li>
+<li>通过 <code>cmd activity attach-agent &lt;PROCESS&gt; &lt;FILE&gt;</code> attach agent 到指定进程</li>
+<li>Attach 成功后，agent 通过 socket 从 <code>installer</code> 读取数据</li>
+<li>InstrumentApplication：<ol>
+<li><a href="https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html#SetEventCallbacks" target="_blank" rel="noopener">SetEventCallbacks</a>：<code>callbacks.ClassFileLoadHook = Agent_ClassFileLoadHook</code></li>
+<li>加载 instrumentation jar 包</li>
+<li><code>RetransformClasses</code>，触发前面设置的 <a href="https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html#ClassFileLoadHook" target="_blank" rel="noopener"><code>ClassFileLoadHook</code></a>：Hook <code>ActivityThread.handleDispatchPackageBroadcast()</code>，更新资源。</li>
+</ol>
+</li>
+<li>HotSwap：<a href="https://docs.oracle.com/javase/8/docs/platform/jvmti/jvmti.html#RedefineClasses" target="_blank" rel="noopener">RedefineClasses</a></li>
+</ol>
+<h3 id="代码结构"><a href="#代码结构" class="headerlink" title="代码结构"></a>代码结构</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">agent/      JVMTI agent 实现，编译成 so 文件，拷贝到 app 的 data 目录下，通过 JVMTI attach 到对应的进程上。</span><br><span class="line">bench.sh</span><br><span class="line">common/</span><br><span class="line">deployer/   Android Studio 端操作流程逻辑</span><br><span class="line">installer/  编译成二进制可执行文件，安装 apk 时会被 push 到 /data/local/tmp/.studio/bin/installer，跑在设备端，由 Android Studio 通过 adb 调用。目前支持三个操作：`dump`，`swap`，`deltapreinstall`。</span><br><span class="line">proto/      PB 定义</span><br><span class="line">summary.py</span><br><span class="line">test/</span><br></pre></td></tr></table></figure>
+<p>核心逻辑可以参考 <a href="deployer/src/main/java/com/android/tools/deployer/Deployer.java">deployer/src/main/java/com/android/tools/deployer/Deployer.java</a> 的 <code>swap</code> 方法，十分清晰。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// Get the list of files from the local apks</span><br><span class="line">// Get the list of files from the installed app</span><br><span class="line">// Calculate the difference between them</span><br><span class="line">// Push the apks to device and get the remote paths</span><br><span class="line">// Verify the changes are swappable and get only the dexes that we can change</span><br><span class="line">// Compare the local vs remote dex files.</span><br><span class="line">// Do the swap</span><br><span class="line">// Update the database with the entire new apk.</span><br><span class="line">// Wait only for swap to finish</span><br></pre></td></tr></table></figure>
+</div></article></div></main><footer><div class="paginator"><a href="/2018/09/14/java-strings-in-switch-statements/" class="next">NEXT</a></div><div class="copyright"><p>© 2015 - 2019 <a href="https://wsxyeah.github.io">王少星</a>, powered by <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/pinggod/hexo-theme-apollo" target="_blank">hexo-theme-apollo</a>.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script></body></html>
