@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://wsxyeah.github.io/"/>
-  <updated>2019-08-18T00:48:49.945Z</updated>
+  <updated>2019-08-18T03:52:57.476Z</updated>
   <id>https://wsxyeah.github.io/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="https://wsxyeah.github.io/2019/08/18/lambda-captures-in-kotlin/"/>
     <id>https://wsxyeah.github.io/2019/08/18/lambda-captures-in-kotlin/</id>
     <published>2019-08-18T00:43:24.000Z</published>
-    <updated>2019-08-18T00:48:49.945Z</updated>
+    <updated>2019-08-18T03:52:57.476Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="Java-中-Lambda-变量捕获"><a href="#Java-中-Lambda-变量捕获" class="headerlink" title="Java 中 Lambda 变量捕获"></a>Java 中 Lambda 变量捕获</h2><p>Java 中 lambda 的变量捕获是值的捕获，也就是直接把捕获的变量拷贝一份，这意味着对于栈上的变量，你如果在 lambda 中想对其赋值，对原始变量是不会生效的，所以 Java 干脆禁止这样做，强制你将其声明为 final。<br>当然如果真的需要改变原始的值的话，IDE 会提示你可以用 Atomic 类或者一个单元素的数组包装一下，这样捕获时是将 Atomic 对象或者数组变量拷贝一份，而他们指向的数据都是堆上的同一份数据。</p><h2 id="Koltin-中-Lambda-变量捕获"><a href="#Koltin-中-Lambda-变量捕获" class="headerlink" title="Koltin 中 Lambda 变量捕获"></a>Koltin 中 Lambda 变量捕获</h2><p>随便写个 demo 反编译下可以发现如果你在 lambda 中对捕获的变量有赋值操作，在 JVM 平台上编译器就会自动帮你把变量包装成一个 Ref 对象，原理跟上面提到的 Java 中的解决方式本质上是一样的。参考 <a href="https://github.com/JetBrains/kotlin/blob/master/libraries/stdlib/jvm/runtime/kotlin/jvm/internal/Ref.java" target="_blank" rel="noopener">Ref.java</a>。</p>]]></content>
+    <content type="html"><![CDATA[<h2 id="Java-中-Lambda-变量捕获"><a href="#Java-中-Lambda-变量捕获" class="headerlink" title="Java 中 Lambda 变量捕获"></a>Java 中 Lambda 变量捕获</h2><p>Java 中 lambda 的变量捕获是值的捕获，也就是直接把捕获的变量拷贝一份，这意味着对于栈上的变量，</p><ol><li>如果在 lambda 声明之后被重新赋值了，lambda 里还是旧的值</li><li>如果在 lambda 中想对其赋值，修改数据，对原始变量是不会生效的</li></ol><p>所以 Java 干脆禁止这样做，要求它们必须是 final 或者 effectively final（即未加 final 修饰，但在 lambda 声明之后无赋值操作）的。<br>当然如果真的需要改变原始的值的话，IDE 会提示你可以用 Atomic 类或者一个单元素的数组包装一下，曲线救国。这样捕获时是将 Atomic 对象或者数组变量拷贝一份，而他们指向的数据都是堆上的同一份数据，变相实现引用捕获。</p><h2 id="Koltin-中-Lambda-变量捕获"><a href="#Koltin-中-Lambda-变量捕获" class="headerlink" title="Koltin 中 Lambda 变量捕获"></a>Koltin 中 Lambda 变量捕获</h2><p>随便写个 demo 反编译下可以发现如果你在 lambda 中对捕获的变量有赋值操作，在 JVM 平台上编译器就会自动帮你把变量包装成一个 Ref 对象，原理跟上面提到的 Java 中的解决方式本质上是一样的。参考 <a href="https://github.com/JetBrains/kotlin/blob/master/libraries/stdlib/jvm/runtime/kotlin/jvm/internal/Ref.java" target="_blank" rel="noopener">Ref.java</a>。</p>]]></content>
     
     <summary type="html">
     
